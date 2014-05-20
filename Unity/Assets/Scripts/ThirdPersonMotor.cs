@@ -14,12 +14,12 @@ public class ThirdPersonMotor : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
     {
-        MoveVector = Vector3.zero;
+        MoveVector = new Vector3(0, 0, 0);
 	}
 	
 	// Update is called once per frame
 	public void UpdateMotor () {
-        //AlignCharacterWithCamera();
+        AlignCharacterWithCamera();
         ProcessMotion();
 	}
 
@@ -36,6 +36,14 @@ public class ThirdPersonMotor : MonoBehaviour {
 
     void ProcessMotion() { 
         // Transform MoveVector to World Space
+        /*
+        Vector3 rotationAmount = Vector3.Lerp(Vector3.zero, new Vector3(0f, 120 * (MoveVector.x < 0f ? -1f : 1f), 0f), Mathf.Abs(MoveVector.x));
+        Quaternion deltaRotation = Quaternion.Euler(rotationAmount * Time.deltaTime);
+        this.transform.rotation = (this.transform.rotation * deltaRotation);
+        */
+
+        //ThirdPersonController.CharacterController.transform.Rotate(0, MoveVector.x, 0);
+
         MoveVector = transform.TransformDirection(MoveVector);
 
         // Normalize MoveVector if Magnitude > 1 (to limit the MoveVector)

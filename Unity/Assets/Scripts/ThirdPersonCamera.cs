@@ -6,8 +6,6 @@ public class ThirdPersonCamera : MonoBehaviour {
     // All data position of what the camera will look at
     Transform TargetLookAt;
 
-    
-
     /* 
      * Distance Handling
      */
@@ -21,9 +19,6 @@ public class ThirdPersonCamera : MonoBehaviour {
     // Ideal distance to target
     private float DesiredDistance = 0f;
 
-    // Smooth for camera moves
-    public float DistanceSmooth = 0.1f;
-
     /*
      * Position Handling
      */
@@ -36,19 +31,23 @@ public class ThirdPersonCamera : MonoBehaviour {
     public float XMoveSensitivity = 1f;
     public float YMoveSensitivity = 1f;
 
-    
     // To Avoid weird angle with the camera
     public float YMinLimit = -40f;
     public float YMaxLimit = 80f;
 
 
-    
-    private float YSmooth = 0.1f;
-    private float XSmooth = 0.05f;
 
     /* 
      * Smoothing Part
+     * Smooth for camera moves
      */
+
+    // Smooth distance changes
+    public float DistanceSmooth = 0.1f;
+
+    // Smooth rotation of the camera
+    private float YSmooth = 0.2f;
+    private float XSmooth = 0.1f;
 
     // Velocity for distance (always equals to 0 as it's modified by SmoothDamp func)
     private float velocityDistance = 0f;
@@ -96,9 +95,10 @@ public class ThirdPersonCamera : MonoBehaviour {
         Debug.Log("Right Horizontal Axe: " + RightHorizontalAxe);
 
         DesiredDirection += new Vector2(RightHorizontalAxe, RightVerticalAxe);
-
+        
         // Clamp the Y rotation
-        DesiredPostion.y = ThirdPersonCameraHelper.ClampAngle(DesiredPostion.y, YMinLimit, YMaxLimit);
+        DesiredDirection.y = ThirdPersonCameraHelper.ClampAngle(DesiredDirection.y, YMinLimit, YMaxLimit);
+
     }
 
     void CalculateDesiredPosition (Vector2 inputMovements)

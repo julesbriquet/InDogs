@@ -26,9 +26,7 @@ public class ThirdPersonController : MonoBehaviour {
 	}
 
     void GetGamePadInput() {
-
-        TPMotor.MoveVector = Vector3.zero;
-     
+             
         // Get LeftPad Input From Gamepad
         float LeftVerticalAxe = Input.GetAxis("LeftVertical");
         float LeftHorizontallAxe = Input.GetAxis("LeftHorizontal");
