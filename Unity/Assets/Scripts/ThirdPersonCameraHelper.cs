@@ -5,7 +5,6 @@ public static class ThirdPersonCameraHelper {
 
     public static float ClampAngle(float angle, float min, float max)
     {
-        Debug.Log("angle:" + angle);
 
         do
         {

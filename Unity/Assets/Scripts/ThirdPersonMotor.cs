@@ -8,54 +8,89 @@ using System.Collections;
  */
 public class ThirdPersonMotor : MonoBehaviour {
 
-    public float MoveSpeed = 10f;
-    public Vector3 MoveVector { get; set; }
+
+
+    public float WalkSpeed = 10f;
+    public float TurnSmooth = 15f;
+    public float SpeedSmoothing = 5f;
+
+    private float MoveSpeed = 0.0f;
+
+    public float RotateSpeed = 500f;
+
+    public Vector3 ControlAxes = Vector3.zero;
+
+    public Vector3 MoveDirection { get; set; }
 
 	// Use this for initialization
 	void Start () 
     {
-        MoveVector = new Vector3(0, 0, 0);
+        MoveDirection = new Vector3(0, 0, 0);
 	}
 	
 	// Update is called once per frame
-	public void UpdateMotor () {
-        AlignCharacterWithCamera();
-        ProcessMotion();
+    public void UpdateMotor(Transform cameraTransform)
+    {
+        AlignCharacterWithCamera(cameraTransform);
+        ProcessMotion(cameraTransform);
 	}
 
-    void AlignCharacterWithCamera() {
-        // If character moving
-        if (MoveVector.x != 0 || MoveVector.z != 0)
-        {
-            // Align the rotation of the character to the main camera
-            transform.rotation = Quaternion.Euler(this.transform.eulerAngles.x,
-                                                  Camera.main.transform.eulerAngles.y,
-                                                  this.transform.eulerAngles.z);
-        }
+    void AlignCharacterWithCamera(Transform cameraTransform) {
+
+        
+
     }
 
-    void ProcessMotion() { 
-        // Transform MoveVector to World Space
-        /*
-        Vector3 rotationAmount = Vector3.Lerp(Vector3.zero, new Vector3(0f, 120 * (MoveVector.x < 0f ? -1f : 1f), 0f), Mathf.Abs(MoveVector.x));
-        Quaternion deltaRotation = Quaternion.Euler(rotationAmount * Time.deltaTime);
-        this.transform.rotation = (this.transform.rotation * deltaRotation);
-        */
+    void ProcessMotion(Transform cameraTransform)
+    {
 
-        //ThirdPersonController.CharacterController.transform.Rotate(0, MoveVector.x, 0);
+        
+        // Forward vector relative to the camera along the x-z plane    
+        Vector3 forward = cameraTransform.TransformDirection(Vector3.forward);
+        forward.y = 0;
+        forward = forward.normalized;
 
-        MoveVector = transform.TransformDirection(MoveVector);
+        // Right vector relative to the camera
+        // Always orthogonal to the forward vector
+        Vector3 right = new Vector3(forward.z, 0, -forward.x);
+
+        Vector3 targetDirection = ControlAxes.x * right + ControlAxes.z * forward;
+
+        //MoveDirection = transform.TransformDirection(MoveDirection);
 
         // Normalize MoveVector if Magnitude > 1 (to limit the MoveVector)
-        if (MoveVector.magnitude > 1)
-            MoveVector = Vector3.Normalize(MoveVector);
+        if (MoveDirection.magnitude > 1)
+            MoveDirection = MoveDirection.normalized;
 
-        MoveVector *= MoveSpeed;
+        MoveDirection = Vector3.RotateTowards(MoveDirection, targetDirection, RotateSpeed * Mathf.Deg2Rad * Time.deltaTime, 1000);
+        MoveDirection = MoveDirection.normalized;
+
+
+
+        // Smooth the speed based on the current target direction
+        float curSpeedSmooth = SpeedSmoothing * Time.deltaTime;
+        float targetSpeed = Mathf.Min(targetDirection.magnitude, 1.0f);
+        targetSpeed *= WalkSpeed;
+
+        MoveSpeed = Mathf.Lerp(MoveSpeed, targetSpeed, curSpeedSmooth);
+
+        if (Debug.isDebugBuild)
+        {
+            GUITest.cameraDirection = right + forward;
+            GUITest.MoveDirection = MoveDirection;
+            GUITest.targetDirection = targetDirection;
+        }
+
+        
+        Vector3 Movements = MoveDirection * MoveSpeed;
 
         // Multiply MoveVector with the DeltaTimeUpdate (Avoid speed depending on processor speed)
-        MoveVector *= Time.deltaTime;
+        Movements *= Time.deltaTime;
 
-        ThirdPersonController.CharacterController.Move(MoveVector);
+        GUITest.MoveDirection = Movements;
+        ThirdPersonController.CharacterController.Move(Movements);
+        
 
+        ThirdPersonController.CharacterController.transform.rotation = Quaternion.LookRotation(MoveDirection);
     }
 }

@@ -59,6 +59,7 @@ public class ThirdPersonCamera : MonoBehaviour {
     // Use this for initialization
     void Start () 
     {
+        ThirdPersonCamera.UseExistingOrCreateMainCamera();
         DistanceToTarget = Mathf.Clamp(DistanceToTarget, DistanceMinToTarget, DistanceMaxToTarget);
         DesiredDistance = StartDistanceToTarget;
     }
@@ -91,9 +92,6 @@ public class ThirdPersonCamera : MonoBehaviour {
         float RightHorizontalAxe = Input.GetAxis("RightHorizontal") * XMoveSensitivity;
         float RightVerticalAxe = Input.GetAxis("RightVertical") * YMoveSensitivity;
 
-        Debug.Log("Right Vetical Axe: " + RightVerticalAxe);
-        Debug.Log("Right Horizontal Axe: " + RightHorizontalAxe);
-
         DesiredDirection += new Vector2(RightHorizontalAxe, RightVerticalAxe);
         
         // Clamp the Y rotation
@@ -125,7 +123,7 @@ public class ThirdPersonCamera : MonoBehaviour {
         DesiredDistance = DistanceToTarget;
     }
 
-    public static void UseExistingOrCreateMainCamera () 
+    public static Transform UseExistingOrCreateMainCamera () 
     {
 
         GameObject tempCamera;
@@ -166,5 +164,7 @@ public class ThirdPersonCamera : MonoBehaviour {
         }
 
         tpCamera.TargetLookAt = targetLookAt.transform;
+
+        return tpCamera.transform;
     }
 }
